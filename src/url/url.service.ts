@@ -13,19 +13,20 @@ export class UrlService {
         private db:Db,
         private utils:UtilsService
     ){}
+    private readonly UrlCollection=this.db.collection("url");
 
 
 // ****************************************************************************************************
     // find All user urls
     async findAll(userId:ObjectId):Promise<UrlInterface[]>{        
-        return (await this.db.collection("url").find({userId}).toArray()) as unknown as UrlInterface[];
+        return (await this.UrlCollection.find({userId}).toArray()) as unknown as UrlInterface[];
     }
 
 // ****************************************************************************************************
     // find url data by hash
     async findByHash({hash}:HashUrlDto,userId?:ObjectId):Promise<UrlInterface>{   
         
-        let query= userId ? await this.db.collection("url").findOne({hash,userId}) : await this.db.collection("url").findOne({hash});
+        let query= userId ? await this.UrlCollection.findOne({hash,userId}) : await this.UrlCollection.findOne({hash});
         const url=query;
         if(!url) throw new NotFoundException("Url not found !")
         return url as unknown as UrlInterface;   
@@ -35,9 +36,7 @@ export class UrlService {
     // find **original url** by hash
     async findOriginalUrlByHash(hash:HashUrlDto):Promise<FindOriginalUrlByHashResponse>{   
         const url=await this.findByHash(hash);
-
         return {originalUrl:url['originalUrl']}
-        
     }
 
 // ***************************************************************************************************
@@ -45,7 +44,7 @@ export class UrlService {
     async urlShortener(urlShortenerDto:UrlShortenerDto):Promise<UrlInterface>{
         const {url}=urlShortenerDto;
         // don't shortener it one more if URL was exist
-        const urlIsExist=(await this.db.collection("url").findOne({ originalUrl:url,userId:undefined })) as unknown as UrlInterface
+        const urlIsExist=(await this.UrlCollection.findOne({ originalUrl:url,userId:undefined })) as unknown as UrlInterface
         if(urlIsExist)
             return urlIsExist;
         // shortener new url
@@ -56,7 +55,7 @@ export class UrlService {
             createdAt:Math.floor(Date.now() / 1000),
             visitCount:0
         };
-        await this.db.collection("url").insertOne(shortener);
+        await this.UrlCollection.insertOne(shortener);
         return shortener;
     }
 
@@ -65,7 +64,7 @@ export class UrlService {
     async customUrlShortener(customUrlShortener:CustomUrlShortenerDto,userId:ObjectId):Promise<UrlInterface>{
         const {hash,originalUrl,expireAt} =customUrlShortener;
         // check originalurl exists or not
-        const urlIsExist=await this.db.collection("url").findOne({originalUrl,userId})
+        const urlIsExist=await this.UrlCollection.findOne({originalUrl,userId})
         if(urlIsExist)
             throw new ConflictException("Url already exist! ")
 
@@ -89,7 +88,7 @@ export class UrlService {
             shortUrl.hash=await this.utils.generateHash()            
         }
         // finaly, save that.
-        await this.db.collection("url").insertOne(shortUrl)
+        await this.UrlCollection.insertOne(shortUrl)
         return shortUrl;
     }
 
@@ -99,7 +98,7 @@ export class UrlService {
     async remove(urlHash:HashUrlDto,userId:ObjectId):Promise<string>{   
         await this.findByHash(urlHash,userId);
         const {hash}=urlHash
-        await this.db.collection("url").deleteOne({hash})
+        await this.UrlCollection.deleteOne({hash})
         return "ok"
     }
 
@@ -111,7 +110,7 @@ export class UrlService {
         
         const {expireAt,originalUrl}=editUrl
 
-        await this.db.collection("url").updateOne({hash:urlHash.hash},{
+        await this.UrlCollection.updateOne({hash:urlHash.hash},{
             $set :
             {
                 "expireAt" : expireAt || url.expireAt,
@@ -122,9 +121,9 @@ export class UrlService {
     }
 
 // ***************************************************************************************************
-    // check hash url existence
+    // check hash existence
     async IsHashExist({hash}):Promise<void>{
-        const url=await this.db.collection("url").findOne({hash});
+        const url=await this.UrlCollection.findOne({hash});
         
         if(url) throw new ConflictException("Url hash exists!")
     }

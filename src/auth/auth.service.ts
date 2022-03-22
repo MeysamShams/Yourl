@@ -14,6 +14,7 @@ export class AuthService {
         private db:Db,
         private jwtService:JwtService
     ){}
+    private readonly collection=this.db.collection("user");
 
     async register(authCredentialsDto:AuthCredentialsDto):Promise<void>{
 
@@ -23,11 +24,11 @@ export class AuthService {
         const hashedPassword=await bcrypt.hash(password,salt)
         
         // check username in db
-        const user=await this.db.collection("user").findOne({username})
+        const user=await this.collection.findOne({username})
         if(user) throw new ConflictException("Username already exist !")
 
         // create new user
-        await this.db.collection("user").insertOne({username,password:hashedPassword})
+        await this.collection.insertOne({username,password:hashedPassword})
         
 
     }
@@ -36,7 +37,7 @@ export class AuthService {
 
         // check username and password
         const {username,password}=authCredentialsDto
-        const user=await this.db.collection("user").findOne({username});
+        const user=await this.collection.findOne({username});
         
         // compare password
         if(user && (await bcrypt.compare(password,user.password))) {
