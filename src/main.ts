@@ -15,6 +15,7 @@ async function bootstrap() {
 
   // swagger configuration
   const config = new DocumentBuilder()
+  .addBearerAuth()
   .setTitle('Yourl API\'s')
   .setVersion('1.0')
   .build();
