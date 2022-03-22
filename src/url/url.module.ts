@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { AuthModule } from 'src/auth/auth.module';
 import { DatabaseModule } from 'src/database/database.module';
 import { UtilsModule } from 'src/utils/utils.module';
@@ -9,6 +9,6 @@ import { UrlService } from './url.service';
 @Module({
   controllers: [UrlController,PublicUrlController],
   providers: [UrlService],
-  imports:[UtilsModule,DatabaseModule,AuthModule]
+  imports:[UtilsModule,DatabaseModule,AuthModule,CacheModule.register()]
 })
 export class UrlModule {}

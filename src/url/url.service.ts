@@ -1,4 +1,5 @@
-import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { Db, ObjectId } from 'mongodb';
 import { UtilsService } from 'src/utils/utils.service';
 import { HashUrlDto, CustomUrlShortenerDto } from './dto/custom-url-shortener.dto';
@@ -11,7 +12,11 @@ export class UrlService {
     constructor(
         @Inject("DATABASE_CONNECTION")
         private db:Db,
-        private utils:UtilsService
+        private utils:UtilsService,
+
+        // cache url data
+        @Inject(CACHE_MANAGER) 
+        private urlCache: Cache
     ){}
     private readonly UrlCollection=this.db.collection("url");
 
@@ -34,8 +39,15 @@ export class UrlService {
 
 // ****************************************************************************************************
     // find **original url** by hash
-    async findOriginalUrlByHash(hash:HashUrlDto):Promise<FindOriginalUrlByHashResponse>{   
-        const url=await this.findByHash(hash);
+    async findOriginalUrlByHash(urlHash:HashUrlDto):Promise<FindOriginalUrlByHashResponse>{   
+        // check cache manager
+        const {hash}=urlHash
+        const cache=(await this.urlCache.get(hash)) as FindOriginalUrlByHashResponse;
+        if(cache) return cache
+        const url=await this.findByHash(urlHash);
+        // save to cache manager
+        await this.urlCache.set(hash,{originalUrl:url['originalUrl']},{ttl:60}) // expire time=60sec
+
         return {originalUrl:url['originalUrl']}
     }
 
