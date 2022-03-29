@@ -62,7 +62,7 @@ export class UrlService {
         // shortener new url
         const shortener:UrlInterface={
             hash:await this.utils.generateHash(),
-            originalUrl:url,
+            originalUrl:(url.startsWith("https://")||url.startsWith("http://"))? url : "http://"+url,
             expireAt:Math.floor(Date.now() / 1000)+(60*60*24*365), // expire in 1 year
             createdAt:Math.floor(Date.now() / 1000),
             visitCount:0
