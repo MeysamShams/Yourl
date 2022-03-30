@@ -1,5 +1,6 @@
 export default () => ({
     port: parseInt(process.env.PORT, 10) || 3001,
+    host:'0.0.0.0',
     database:{
         url:"mongodb://127.0.0.1:27017",
         name:process.env.STAGE==="prod"? 'Yourl' :'YourlDev'

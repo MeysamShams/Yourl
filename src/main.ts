@@ -32,6 +32,9 @@ async function bootstrap() {
     secret: configService.get<string>('cookie.secret'), // for cookies signature
   });
   
-  await app.listen(configService.get<number>('port'));
+  const port=configService.get<number>('port')
+  const host=configService.get<string>('host')
+  
+  await app.listen(port,host);
 }
 bootstrap();
