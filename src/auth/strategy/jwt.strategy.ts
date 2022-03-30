@@ -1,4 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Db } from "mongodb";
 import {Strategy} from 'passport-jwt'
@@ -7,12 +8,13 @@ import { JwtPayloadInterface } from "../interface/jwtPayload.interface";
 export class JwtStrategy extends PassportStrategy(Strategy){
     constructor(
         @Inject("DATABASE_CONNECTION")
-        private db:Db
+        private db:Db,
+        private configService: ConfigService
     ){
         super({
-            secretOrKey:"Vg7$2!klTM&yoP@",
+            secretOrKey:configService.get<string>("jwt.secret"),
             ignoreExpiration: false,
-            jwtFromRequest:(req) => {
+            jwtFromRequest:(req:any) => {
                 if (!req || !req.cookies) return null;
                 return req.cookies['accessToken'];
               },

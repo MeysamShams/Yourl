@@ -6,6 +6,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import fastifyCookie from 'fastify-cookie';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   // fastify setup
@@ -13,6 +14,8 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter()
   );
+  // load configuration
+  const configService = app.get(ConfigService);
 
   // swagger configuration
   const config = new DocumentBuilder()
@@ -26,9 +29,9 @@ async function bootstrap() {
   app.enableCors()
 
   app.register(fastifyCookie, {
-    secret: 'R@fg5J7&viE%1!*h', // for cookies signature
+    secret: configService.get<string>('cookie.secret'), // for cookies signature
   });
   
-  await app.listen(3001);
+  await app.listen(configService.get<number>('port'));
 }
 bootstrap();

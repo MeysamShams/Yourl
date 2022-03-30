@@ -3,12 +3,14 @@ import {FastifyReply} from 'fastify'
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
     constructor(
-        private authService:AuthService
+        private authService:AuthService,
+        private configService:ConfigService
     ){}
 
     @Post("/register")
@@ -25,7 +27,7 @@ export class AuthController {
             path:"/",
             secure:true,
             httpOnly:true,
-            expires:new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)) // 7 days
+            expires:this.configService.get<Date>('cookie.expires')
         }).send({token})
         // return {token}
     }
