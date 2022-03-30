@@ -1,4 +1,5 @@
-import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Post, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import {FastifyReply} from 'fastify'
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
@@ -18,7 +19,14 @@ export class AuthController {
 
     @Post("/login")
     @UsePipes(ValidationPipe)
-    login(@Body() authCredentialsDto:AuthCredentialsDto):Promise<{token:string}>{
-        return this.authService.login(authCredentialsDto)
+    async login(@Body() authCredentialsDto:AuthCredentialsDto,@Res({ passthrough: true }) response: FastifyReply){
+        const {token}=await this.authService.login(authCredentialsDto)
+        response.setCookie("accessToken",token,{
+            path:"/",
+            secure:true,
+            httpOnly:true,
+            expires:new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)) // 7 days
+        }).send({token})
+        // return {token}
     }
 }

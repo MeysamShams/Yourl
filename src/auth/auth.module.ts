@@ -11,9 +11,9 @@ import { DatabaseModule } from 'src/database/database.module';
     DatabaseModule,
     PassportModule.register({defaultStrategy:"jwt"}),
     JwtModule.register({
-      secret:"StrongSecret",
+      secret:"Vg7$2!klTM&yoP@",
       signOptions:{
-        expiresIn:86400 // 1 day
+        expiresIn:"7d" // 7 days
       }
     }),
   ],

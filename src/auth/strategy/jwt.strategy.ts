@@ -1,7 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Db } from "mongodb";
-import {ExtractJwt,Strategy} from 'passport-jwt'
+import {Strategy} from 'passport-jwt'
 import { JwtPayloadInterface } from "../interface/jwtPayload.interface";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy){
@@ -10,8 +10,12 @@ export class JwtStrategy extends PassportStrategy(Strategy){
         private db:Db
     ){
         super({
-            secretOrKey:"StrongSecret",
-            jwtFromRequest:ExtractJwt.fromAuthHeaderAsBearerToken()
+            secretOrKey:"Vg7$2!klTM&yoP@",
+            ignoreExpiration: false,
+            jwtFromRequest:(req) => {
+                if (!req || !req.cookies) return null;
+                return req.cookies['accessToken'];
+              },
         })
     }
 
