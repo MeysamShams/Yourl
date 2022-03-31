@@ -23,12 +23,8 @@ export class AuthController {
     @UsePipes(ValidationPipe)
     async login(@Body() authCredentialsDto:AuthCredentialsDto,@Res({ passthrough: true }) response: FastifyReply){
         const {token}=await this.authService.login(authCredentialsDto)
-        response.setCookie("accessToken",token,{
-            path:"/",
-            secure:true,
-            httpOnly:true,
-            expires:this.configService.get<Date>('cookie.expires')
-        }).send({token})
+        // save access token into httpOnly cookie
+        response.setCookie("accessToken",token,this.configService.get<{}>("cookie.setCookie")).send({token})
         // return {token}
     }
 }
