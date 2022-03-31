@@ -24,7 +24,7 @@ export class AuthController {
     async login(@Body() authCredentialsDto:AuthCredentialsDto,@Res({ passthrough: true }) response: FastifyReply){
         const {token}=await this.authService.login(authCredentialsDto)
         // save access token into httpOnly cookie
-        response.setCookie("accessToken",token,this.configService.get<{}>("cookie.setCookie")).send({token})
+        response.setCookie("accessToken",token,this.configService.get<{}>("cookie.setCookieOption")).send({token})
         // return {token}
     }
 }
