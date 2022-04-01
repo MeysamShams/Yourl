@@ -2,8 +2,8 @@ export default () => ({
     port: parseInt(process.env.PORT, 10) || 3001,
     host:'0.0.0.0',
     database:{
-        url:"mongodb://127.0.0.1:27017",
-        name:process.env.STAGE==="prod"? 'Yourl' :'YourlDev'
+        url:process.env.STAGE==='prod' ? process.env.DATABASEURL : "mongodb://127.0.0.1:27017",
+        name:'Yourl'
     },
     cookie:{
         secret:"R@fg5J7&viE%1!*h",
